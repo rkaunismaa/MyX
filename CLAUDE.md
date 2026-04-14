@@ -15,6 +15,9 @@ source .venv/bin/activate
 pytest
 ```
 
+## X API Quirks
+`user_legacy.id_str` is absent from SearchTimeline responses in the current X API. Always use `user_result.rest_id` as the authoritative user ID — it's what `author_id` is derived from in `pipeline/parser.py`.
+
 ## Running the scraper manually
 ```bash
 source .venv/bin/activate
