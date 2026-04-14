@@ -18,3 +18,15 @@ def get_enabled_targets(conn) -> list[dict]:
     targets = cursor.fetchall()
     cursor.close()
     return targets
+
+
+def get_target_by_id(conn, target_id: int) -> dict | None:
+    cursor = conn.cursor(dictionary=True)
+    try:
+        cursor.execute(
+            "SELECT * FROM scrape_targets WHERE target_id = %s AND enabled = TRUE",
+            (target_id,),
+        )
+        return cursor.fetchone()
+    finally:
+        cursor.close()

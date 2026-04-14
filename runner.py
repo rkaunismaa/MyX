@@ -1,16 +1,24 @@
+"""Shared scrape loop used by both the CLI and the scheduler.
+
+Note: DB writes in `on_payload` are synchronous (blocking) calls on the asyncio
+event loop thread. This is intentional — the driver is single-threaded and
+single-connection by design. Do not introduce asyncio.gather across targets.
+"""
+
 import asyncio
 from datetime import datetime
 from typing import Optional
 
 from loguru import logger
 
-from db.connection import get_connection, get_enabled_targets
+from db.connection import get_connection, get_enabled_targets, get_target_by_id
 from pipeline.parser import extract_tweets
 from pipeline.writer import insert_tweet, link_tweet_target, upsert_user, write_run_log
 from scraper.engine import connect_to_brave, scrape_target
 
 
 async def run_targets(config: dict, targets: list[dict], conn) -> None:
+    """Run the scrape loop for a list of targets using an existing DB connection."""
     playwright, browser = await connect_to_brave(config)
     try:
         context = browser.contexts[0] if browser.contexts else await browser.new_context()
@@ -52,21 +60,20 @@ async def run_targets(config: dict, targets: list[dict], conn) -> None:
 
 
 def run_all(config: dict, target_id: Optional[int] = None) -> None:
+    """Entry point for CLI and scheduler. Opens DB connection and drives run_targets."""
     conn = get_connection(config)
     try:
         if target_id is not None:
-            cursor = conn.cursor(dictionary=True)
-            cursor.execute(
-                "SELECT * FROM scrape_targets WHERE target_id = %s AND enabled = TRUE",
-                (target_id,),
-            )
-            targets = cursor.fetchall()
-            cursor.close()
+            target = get_target_by_id(conn, target_id)
+            targets = [target] if target else []
         else:
             targets = get_enabled_targets(conn)
 
         if not targets:
-            logger.warning("No enabled targets found.")
+            if target_id is not None:
+                logger.warning(f"Target #{target_id} not found or not enabled.")
+            else:
+                logger.warning("No enabled targets found.")
             return
 
         asyncio.run(run_targets(config, targets, conn))

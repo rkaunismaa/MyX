@@ -35,10 +35,11 @@ async def scrape_target(
             if endpoint in response.url:
                 try:
                     payload = await response.json()
-                    items = on_payload(payload, endpoint) or []
-                    collected.extend(items)
                 except Exception as e:
-                    logger.warning(f"Failed to parse {endpoint} response: {e}")
+                    logger.warning(f"Failed to deserialise {endpoint} response: {e}")
+                    return
+                items = on_payload(payload, endpoint) or []
+                collected.extend(items)
 
     page.on("response", handle_response)
 
