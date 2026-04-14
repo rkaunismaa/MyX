@@ -1,0 +1,17 @@
+schedule:
+  cron: "0 */6 * * *"   # every 6 hours
+
+brave:
+  debugging_port: 9222
+  user_data_dir: /home/rob/.config/BraveSoftware/Brave-Browser
+
+database:
+  host: localhost
+  port: 3306
+  name: twitter_scraper
+  user: YOUR_MYSQL_USER
+  password: ""  # set your MySQL password here
+
+scraper:
+  max_scrolls: 20
+  scroll_delay_seconds: 2
