@@ -1,7 +1,7 @@
 import mysql.connector
 
 
-def get_connection(config: dict):
+def get_connection(config: dict) -> mysql.connector.MySQLConnection:
     db = config["database"]
     return mysql.connector.connect(
         host=db["host"],

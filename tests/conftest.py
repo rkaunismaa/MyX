@@ -18,10 +18,12 @@ def db_conn(test_config):
     yield conn
     # Truncate all tables after each test for isolation
     cursor = conn.cursor()
-    cursor.execute("SET FOREIGN_KEY_CHECKS = 0")
-    for table in ["run_logs", "tweet_targets", "tweets", "users", "scrape_targets"]:
-        cursor.execute(f"TRUNCATE TABLE {table}")
-    cursor.execute("SET FOREIGN_KEY_CHECKS = 1")
-    conn.commit()
-    cursor.close()
-    conn.close()
+    try:
+        cursor.execute("SET FOREIGN_KEY_CHECKS = 0")
+        for table in ["run_logs", "tweet_targets", "tweets", "users", "scrape_targets"]:
+            cursor.execute(f"TRUNCATE TABLE {table}")
+        cursor.execute("SET FOREIGN_KEY_CHECKS = 1")
+        conn.commit()
+    finally:
+        cursor.close()
+        conn.close()
