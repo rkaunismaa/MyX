@@ -1,6 +1,5 @@
 import json
 from datetime import datetime
-from typing import Optional
 
 TWITTER_DATE_FORMAT = "%a %b %d %H:%M:%S +0000 %Y"
 
@@ -16,9 +15,10 @@ def parse_user(user_legacy: dict) -> dict:
     }
 
 
-def parse_tweet(tweet_result: dict) -> Optional[dict]:
+def parse_tweet(tweet_result: dict) -> dict | None:
     legacy = tweet_result.get("legacy", {})
-    if not legacy or not legacy.get("full_text"):
+    full_text = legacy.get("full_text", "")
+    if not legacy or not full_text:
         return None
 
     user_result = (
@@ -32,6 +32,8 @@ def parse_tweet(tweet_result: dict) -> Optional[dict]:
     try:
         tweet_id = int(tweet_result.get("rest_id", "0"))
         author_id = int(user_id_str)
+        if tweet_id == 0 or author_id == 0:
+            return None
         created_at = datetime.strptime(legacy["created_at"], TWITTER_DATE_FORMAT)
     except (ValueError, KeyError):
         return None
@@ -42,7 +44,7 @@ def parse_tweet(tweet_result: dict) -> Optional[dict]:
         "tweet": {
             "tweet_id": tweet_id,
             "author_id": author_id,
-            "full_text": legacy.get("full_text", ""),
+            "full_text": full_text,
             "lang": legacy.get("lang", ""),
             "created_at": created_at,
             "retweet_count": legacy.get("retweet_count", 0),
@@ -81,6 +83,9 @@ def _get_instructions(payload: dict, endpoint: str) -> list:
 def extract_tweets(payload: dict, endpoint: str) -> list[dict]:
     results = []
     for instruction in _get_instructions(payload, endpoint):
+        # NOTE: TimelinePinEntry is a real Twitter instruction type with a different shape
+        # (single 'entry' key, not 'entries'). It is not handled here — pinned tweets
+        # will not be collected.
         if instruction.get("type") != "TimelineAddEntries":
             continue
         for entry in instruction.get("entries", []):

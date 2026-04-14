@@ -150,6 +150,12 @@ def test_parse_tweet_returns_none_for_missing_legacy():
     assert result is None
 
 
+def test_parse_tweet_returns_none_for_missing_author():
+    result = make_tweet_result(tweet_id="123", user_id="0")
+    parsed = parse_tweet(result)
+    assert parsed is None
+
+
 def test_extract_tweets_from_user_tweets_payload():
     tweet_results = [make_tweet_result(tweet_id="1"), make_tweet_result(tweet_id="2")]
     payload = make_user_tweets_payload(tweet_results)
