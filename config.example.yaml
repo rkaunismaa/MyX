@@ -3,7 +3,7 @@ schedule:
 
 browser:
   debugging_port: 9222
-  user_data_dir: /home/rob/.config/chromium
+  user_data_dir: /home/rob/.config/chromium-scraper
 
 database:
   host: localhost

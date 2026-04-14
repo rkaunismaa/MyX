@@ -17,7 +17,7 @@ async def connect_to_brave(config: dict):
     except Exception:
         await playwright.stop()
         raise
-    logger.info(f"Connected to Brave on port {port}")
+    logger.info(f"Connected to browser on port {port}")
     return playwright, browser
 
 
