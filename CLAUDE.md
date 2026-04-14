@@ -24,7 +24,7 @@ source .venv/bin/activate
 python cli.py run
 ```
 
-Brave must be running with CDP debugging enabled first:
+Chromium must be running with CDP debugging enabled first:
 ```bash
-./launch-brave.sh
+./launch-chromium.sh
 ```

@@ -10,7 +10,7 @@ INTERCEPTED_ENDPOINTS = {"UserTweets", "SearchTimeline"}
 
 
 async def connect_to_brave(config: dict):
-    port = config["brave"]["debugging_port"]
+    port = config["browser"]["debugging_port"]
     playwright = await async_playwright().start()
     try:
         browser = await playwright.chromium.connect_over_cdp(f"http://localhost:{port}")

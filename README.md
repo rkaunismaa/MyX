@@ -12,7 +12,7 @@ A local X (Twitter) scraper that uses Playwright + Brave CDP to collect tweets f
 ## Requirements
 
 - Python 3.11+
-- Brave Browser
+- Chromium Browser
 - MySQL 8.x (running locally)
 - A valid X (Twitter) session open in Brave
 
@@ -65,13 +65,13 @@ scraper:
 
 > `config.yaml` is gitignored. Never commit it — it contains your database password.
 
-### 4. Launch Brave with debugging enabled
+### 4. Launch Chromium with debugging enabled
 
 ```bash
-./launch-brave.sh
+./launch-chromium.sh
 ```
 
-Log into X (x.com) in the Brave window that opens. Keep it running while the scraper operates.
+Log into X (x.com) in the Chromium window that opens. Keep it running while the scraper operates.
 
 ## CLI Usage
 
@@ -192,6 +192,6 @@ Tests run against the `twitter_scraper_test` database. All tables are truncated 
 ## Notes
 
 - The scraper intercepts X's internal GraphQL API responses — it does not use any official API.
-- Brave must be running with `--remote-debugging-port=9222` and logged into x.com for scrapes to work.
+- Chromium must be running with `--remote-debugging-port=9222` and logged into x.com for scrapes to work.
 - MySQL availability is not guaranteed at scheduler startup. If MySQL is unavailable, the job will fail and the service will restart after 30 seconds (`Restart=on-failure`).
 - `raw_json` is stored on each tweet for reprocessing if the parser is updated.
