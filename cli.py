@@ -1,5 +1,4 @@
 import click
-from loguru import logger
 
 from config import load_config
 from db.connection import get_connection
@@ -35,6 +34,7 @@ def target_add(target_type, value):
     config = load_config()
     conn = get_connection(config)
     cursor = conn.cursor()
+    new_id = None
     try:
         cursor.execute(
             "INSERT INTO scrape_targets (type, value, enabled, created_at) VALUES (%s, %s, TRUE, NOW())",
@@ -77,6 +77,10 @@ def target_enable(target_id):
     cursor = conn.cursor()
     try:
         cursor.execute("UPDATE scrape_targets SET enabled = TRUE WHERE target_id = %s", (target_id,))
+        if cursor.rowcount == 0:
+            conn.rollback()
+            click.echo(f"No target with ID #{target_id} found.", err=True)
+            return
         conn.commit()
     finally:
         cursor.close()
@@ -93,6 +97,10 @@ def target_disable(target_id):
     cursor = conn.cursor()
     try:
         cursor.execute("UPDATE scrape_targets SET enabled = FALSE WHERE target_id = %s", (target_id,))
+        if cursor.rowcount == 0:
+            conn.rollback()
+            click.echo(f"No target with ID #{target_id} found.", err=True)
+            return
         conn.commit()
     finally:
         cursor.close()
