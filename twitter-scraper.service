@@ -1,0 +1,15 @@
+[Unit]
+Description=Twitter Scraper Scheduler
+After=network.target mysql.service
+
+[Service]
+Type=simple
+WorkingDirectory=/home/rob/PythonEnvironments/Twitter
+ExecStart=/home/rob/PythonEnvironments/Twitter/.venv/bin/python scheduler.py
+Restart=on-failure
+RestartSec=30
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=default.target
