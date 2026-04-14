@@ -1,6 +1,8 @@
 [Unit]
 Description=Twitter Scraper Scheduler
-After=network.target mysql.service
+# Note: mysql.service is a system unit and cannot be ordered from a user service.
+# MySQL availability is handled by Restart=on-failure recovery instead.
+After=network.target
 
 [Service]
 Type=simple
@@ -8,6 +10,7 @@ WorkingDirectory=/home/rob/PythonEnvironments/Twitter
 ExecStart=/home/rob/PythonEnvironments/Twitter/.venv/bin/python scheduler.py
 Restart=on-failure
 RestartSec=30
+TimeoutStopSec=15
 StandardOutput=journal
 StandardError=journal
 
