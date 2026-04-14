@@ -27,6 +27,28 @@ def upsert_user(conn, user: dict) -> None:
         cursor.close()
 
 
+def ensure_user_stub(conn, user_id: int) -> None:
+    """Insert a minimal user placeholder if this user_id doesn't exist yet.
+
+    Uses INSERT IGNORE so existing real user data is never overwritten.
+    Called when a tweet's author_id is known but full profile data is absent.
+    """
+    cursor = conn.cursor()
+    try:
+        cursor.execute(
+            """
+            INSERT IGNORE INTO users
+                (user_id, username, display_name, followers_count, following_count, verified, scraped_at)
+            VALUES
+                (%s, '', '', 0, 0, FALSE, NOW())
+            """,
+            (user_id,),
+        )
+        conn.commit()
+    finally:
+        cursor.close()
+
+
 def insert_tweet(conn, tweet: dict) -> None:
     cursor = conn.cursor()
     try:

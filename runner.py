@@ -13,7 +13,7 @@ from loguru import logger
 
 from db.connection import get_connection, get_enabled_targets, get_target_by_id
 from pipeline.parser import extract_tweets
-from pipeline.writer import insert_tweet, link_tweet_target, upsert_user, write_run_log
+from pipeline.writer import ensure_user_stub, insert_tweet, link_tweet_target, upsert_user, write_run_log
 from scraper.engine import connect_to_brave, scrape_target
 
 
@@ -33,6 +33,8 @@ async def run_targets(config: dict, targets: list[dict], conn) -> None:
                     for item in items:
                         if item["user"]:
                             upsert_user(conn, item["user"])
+                        else:
+                            ensure_user_stub(conn, item["tweet"]["author_id"])
                         insert_tweet(conn, item["tweet"])
                         link_tweet_target(conn, item["tweet"]["tweet_id"], target["target_id"])
                     return items

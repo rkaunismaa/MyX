@@ -39,6 +39,9 @@ def parse_tweet(tweet_result: dict) -> dict | None:
         return None
 
     user = parse_user(user_legacy) if user_legacy else None
+    if user:
+        # user_legacy may lack id_str in current X API responses; rest_id is authoritative
+        user["user_id"] = author_id
 
     return {
         "tweet": {
