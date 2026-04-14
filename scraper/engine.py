@@ -12,7 +12,11 @@ INTERCEPTED_ENDPOINTS = {"UserTweets", "SearchTimeline"}
 async def connect_to_brave(config: dict):
     port = config["brave"]["debugging_port"]
     playwright = await async_playwright().start()
-    browser = await playwright.chromium.connect_over_cdp(f"http://localhost:{port}")
+    try:
+        browser = await playwright.chromium.connect_over_cdp(f"http://localhost:{port}")
+    except Exception:
+        await playwright.stop()
+        raise
     logger.info(f"Connected to Brave on port {port}")
     return playwright, browser
 
@@ -31,7 +35,7 @@ async def scrape_target(
             if endpoint in response.url:
                 try:
                     payload = await response.json()
-                    items = on_payload(payload, endpoint)
+                    items = on_payload(payload, endpoint) or []
                     collected.extend(items)
                 except Exception as e:
                     logger.warning(f"Failed to parse {endpoint} response: {e}")
@@ -42,7 +46,7 @@ async def scrape_target(
     logger.info(f"Navigating to {url}")
     await page.goto(url, wait_until="domcontentloaded")
 
-    prev_count = 0
+    prev_count = -1
     for scroll_num in range(max_scrolls):
         await page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
         await asyncio.sleep(scroll_delay)
