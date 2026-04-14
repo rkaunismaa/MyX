@@ -1,11 +1,11 @@
 # MyX — X/Twitter Scraper
 
-A local X (Twitter) scraper that uses Playwright + Brave CDP to collect tweets from specific accounts and search queries into a MySQL database. Runs on a configurable cron schedule and provides a CLI for manual control.
+A local X (Twitter) scraper that uses Playwright + Chromium CDP to collect tweets from specific accounts and search queries into a MySQL database. Runs on a configurable cron schedule and provides a CLI for manual control.
 
 ## How It Works
 
-1. Brave Browser is launched with remote debugging enabled (`--remote-debugging-port=9222`).
-2. The scraper connects to Brave via the Chrome DevTools Protocol (CDP) and intercepts X's internal GraphQL API responses as it navigates to each target.
+1. Chromium is launched with remote debugging enabled (`--remote-debugging-port=9222`).
+2. The scraper connects to Chromium via the Chrome DevTools Protocol (CDP) and intercepts X's internal GraphQL API responses as it navigates to each target.
 3. Tweets are parsed and upserted into MySQL — users, tweets, and target associations are stored in normalized tables.
 4. A background scheduler (APScheduler) fires the scrape on a cron schedule. A Click CLI lets you trigger runs and manage targets manually.
 
@@ -14,7 +14,7 @@ A local X (Twitter) scraper that uses Playwright + Brave CDP to collect tweets f
 - Python 3.11+
 - Chromium Browser
 - MySQL 8.x (running locally)
-- A valid X (Twitter) session open in Brave
+- A valid X (Twitter) session open in Chromium
 
 ## Setup
 
@@ -47,9 +47,9 @@ Edit `config.yaml`:
 schedule:
   cron: "0 */6 * * *"   # every 6 hours
 
-brave:
+browser:
   debugging_port: 9222
-  user_data_dir: /home/rob/.config/BraveSoftware/Brave-Browser
+  user_data_dir: /home/rob/.config/chromium
 
 database:
   host: localhost
@@ -152,7 +152,8 @@ python scheduler.py
 ├── config.py                # Config loader
 ├── config.yaml              # Local config (gitignored)
 ├── config.example.yaml      # Safe template to commit
-├── launch-brave.sh          # Launch Brave with CDP debugging
+├── launch-chromium.sh       # Launch Chromium with CDP debugging
+├── launch-brave.sh          # Legacy: launch Brave with CDP debugging
 ├── twitter-scraper.service  # systemd user service unit
 ├── requirements.txt
 ├── db/
