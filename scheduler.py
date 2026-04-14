@@ -1,3 +1,9 @@
+"""APScheduler background process that runs scrape jobs on a configurable cron schedule.
+
+Managed by systemd as a user service (twitter-scraper.service). Run directly with:
+    python scheduler.py
+"""
+
 from apscheduler.schedulers.blocking import BlockingScheduler
 from loguru import logger
 
@@ -24,6 +30,9 @@ def main():
         day=day,
         month=month,
         day_of_week=day_of_week,
+        misfire_grace_time=3600,  # tolerate up to 1 hour lateness (e.g. after suspend/resume)
+        coalesce=True,            # collapse multiple missed runs into one
+        max_instances=1,          # prevent overlapping runs
     )
 
     logger.info(f"Scheduler started. Cron: {cron_expr}")
